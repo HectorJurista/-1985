@@ -1,0 +1,133 @@
+import React, { useState } from 'react';
+
+interface Particle {
+  id: number;
+  mass: number;
+  velocity: number;
+}
+
+const CAMCOApp: React.FC = () => {
+  const [particles, setParticles] = useState<Particle[]>([
+    { id: 1, mass: 1, velocity: 1 },
+    { id: 2, mass: 2, velocity: 0.5 },
+  ]);
+
+  const [newMass, setNewMass] = useState<number>(1);
+  const [newVelocity, setNewVelocity] = useState<number>(1);
+  const [nextId, setNextId] = useState<number>(3);
+
+  const calculateTotalMomentum = (): number => {
+    return particles.reduce((total, particle) => total + particle.mass * particle.velocity, 0);
+  };
+
+  const addParticle = () => {
+    const newParticle: Particle = {
+      id: nextId,
+      mass: newMass,
+      velocity: newVelocity,
+    };
+    setParticles([...particles, newParticle]);
+    setNextId(nextId + 1);
+  };
+
+  const updateParticle = (id: number, newMass: number, newVelocity: number) => {
+    const updatedParticles = particles.map((particle) =>
+      particle.id === id ? { ...particle, mass: newMass, velocity: newVelocity } : particle
+    );
+    setParticles(updatedParticles);
+  };
+
+  const deleteParticle = (id: number) => {
+    const updatedParticles = particles.filter((particle) => particle.id !== id);
+    setParticles(updatedParticles);
+  };
+
+  return (
+    <div className="p-4 bg-gray-100 min-h-screen">
+      <h1 className="text-2xl font-bold mb-4 text-gray-800">
+        Cantidad de Movimiento Constante (CAMCO)
+      </h1>
+
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold mb-2 text-gray-700">Total Momentum: {calculateTotalMomentum()}</h2>
+      </div>
+
+      <div className="mb-4 p-4 bg-white rounded-lg shadow-md">
+        <h3 className="text-md font-semibold mb-2 text-gray-700">Add New Particle</h3>
+        <div className="flex gap-2">
+          <div>
+            <label htmlFor="mass" className="block text-sm font-medium text-gray-700">Mass:</label>
+            <input
+              type="number"
+              id="mass"
+              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              value={newMass}
+              onChange={(e) => setNewMass(parseFloat(e.target.value))}
+            />
+          </div>
+          <div>
+            <label htmlFor="velocity" className="block text-sm font-medium text-gray-700">Velocity:</label>
+            <input
+              type="number"
+              id="velocity"
+              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              value={newVelocity}
+              onChange={(e) => setNewVelocity(parseFloat(e.target.value))}
+            />
+          </div>
+          <button
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-6"
+            onClick={addParticle}
+          >
+            Add Particle
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold mb-2 text-gray-700">Particles</h2>
+        {particles.map((particle) => (
+          <div key={particle.id} className="mb-2 p-4 bg-white rounded-lg shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600">
+                  Particle ID: {particle.id}, Mass: {particle.mass}, Velocity: {particle.velocity}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => {
+                    const newMassStr = prompt("Enter new mass", particle.mass.toString());
+                    const newVelocityStr = prompt("Enter new velocity", particle.velocity.toString());
+
+                    if (newMassStr !== null && newVelocityStr !== null) {
+                      const newMass = parseFloat(newMassStr);
+                      const newVelocity = parseFloat(newVelocityStr);
+
+                      if (!isNaN(newMass) && !isNaN(newVelocity)) {
+                        updateParticle(particle.id, newMass, newVelocity);
+                      } else {
+                        alert("Invalid input for mass or velocity.");
+                      }
+                    }
+                  }}
+                >
+                  Update
+                </button>
+                <button
+                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => deleteParticle(particle.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default CAMCOApp;
